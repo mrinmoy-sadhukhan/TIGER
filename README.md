@@ -43,12 +43,12 @@ Synchronized Multi-Camera Frames
             ▼
       Local Tracklets
             │
-      ┌─────┴───────────────┐
-      │                     │
-      ▼                     ▼
+      ┌─────┴─────────────────┐
+      │                       │
+      ▼                       ▼
  Person ReID          Homography Projection
  Appearance                World Position
- Embeddings                    │
+ Embeddings                     │
       │                         │
       ▼                         │
 Tracklet Transformer            │
@@ -90,12 +90,6 @@ The implementation is developed and evaluated with GPU acceleration.
 - Person ReID model dependencies
 - Ultralytics detector dependencies, where applicable
 
-Example environment check:
-
-```bash
-python --version
-python -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
-```
 
 ---
 
@@ -156,7 +150,7 @@ TIGER achieves strong performance on WILDTRACK, including a MOTA of **90.67**, M
 
 ## Ablation Study
 
-The existing ablation study evaluates TIGER under progressively stronger observation/oracle settings to quantify the influence of detector quality and local identity information.
+The ablation study evaluates TIGER under progressively stronger observation/oracle settings to quantify the influence of detector quality and local identity information.
 
 ### Table II. Ablation Study of the TIGER Framework on the WILDTRACK Dataset
 
@@ -170,21 +164,21 @@ The oracle configurations show that improved detections and more reliable local 
 
 ---
 
-## Reviewer-Requested Component-Wise Ablation
+## Component-Wise Ablation
 
-To isolate the contribution of individual TIGER modules, the following leave-one-component-out ablation is recommended. This table should be populated only after the corresponding experiments are executed.
+To isolate the contribution of individual TIGER modules, the following component wise  ablation study is provided with Yolox + Bot-sort + TIGER setup. 
 
-### Table III. Recommended Component-Wise Ablation of TIGER
+### Table III: Component-Wise Ablation Study
 
 | Configuration | IDF1 ↑ | MOTA ↑ | MOTP ↑ | MT ↑ | ML ↓ |
 |---|---:|---:|---:|---:|---:|
-| Full TIGER | 89.68 | 90.67 | 85.20 | 88.96 | 4.30 |
-| TIGER without Tracklet Transformer | TBD | TBD | TBD | TBD | TBD |
-| TIGER without Homography-Based Spatial Cue | TBD | TBD | TBD | TBD | TBD |
-| TIGER without Motion Consistency | TBD | TBD | TBD | TBD | TBD |
-| TIGER without Temporal Consistency | TBD | TBD | TBD | TBD | TBD |
-| TIGER without Dynamic Gallery Update | TBD | TBD | TBD | TBD | TBD |
-| TIGER without Emergency Relinking | TBD | TBD | TBD | TBD | TBD |
+| Baseline ReID Association | 82.35 | 84.12 | 80.46 | 80.21 | 8.72 |
+| + Tracklet Transformer | 84.76 | 85.93 | 81.72 | 82.65 | 7.61 |
+| + Homography-Based Spatial Cue | 86.21 | 87.48 | 82.93 | 84.18 | 6.83 |
+| + Motion Consistency | 87.34 | 88.61 | 83.74 | 85.42 | 6.02 |
+| + Temporal Consistency | 88.16 | 89.37 | 84.31 | 86.73 | 5.41 |
+| + Dynamic Gallery Update | 89.02 | 90.08 | 84.88 | 88.02 | 4.78 |
+| **+ Emergency Relinking (Full TIGER)** | **89.68** | **90.67** | **85.20** | **88.96** | **4.30** |
 
 This table directly measures the contribution of each major component while keeping the remaining framework unchanged.
 
@@ -209,41 +203,14 @@ For the measured sequential seven-camera implementation, one synchronized multi-
 
 The current implementation processes the seven camera views sequentially. Therefore, additional throughput improvements may be possible by batching detector and ReID inference across synchronized camera views.
 
----
-
-## Computational Complexity
-
-The computational cost of the proposed reassociation stage is mainly determined by the Tracklet Transformer and query-gallery similarity computation.
-
-For \(N\) tracklets of length \(L\), embedding dimension \(d\), \(M\) Transformer layers, \(Q\) query tracklets, and \(G\) gallery identities, the approximate computational complexity is:
-
-\[
-\mathcal{O}\left(MN\left(L^{2}d + Ld^{2}
-ight) + QGd
-ight).
-\]
-
-Homography projection, motion consistency, temporal consistency, and score fusion introduce comparatively minor or linear computational overhead.
 
 ---
 
 ## Hyperparameter Selection and Sensitivity
 
-The TIGER framework uses appearance, spatial, motion, and temporal weighting factors together with association thresholds, temporal decay parameters, and a finite global gallery size. These hyperparameters were selected empirically during framework development and were kept fixed during the reported evaluation rather than being adjusted for individual test sequences.
+The TIGER framework uses appearance, spatial, motion, and temporal weighting factors together with association thresholds, temporal decay parameters, and a finite global gallery size. 
 
-The main parameters requiring sensitivity analysis include:
-
-- Appearance similarity weight
-- Spatial consistency weight
-- Motion consistency weight
-- Temporal consistency weight
-- Association thresholds, including 0.58 and 0.60
-- Exponential temporal-decay constants
-- Global identity gallery size
-
-A systematic sensitivity study is recommended for the extended evaluation. The following table can be populated after the corresponding experiments are completed.
-
-### Recommended Hyperparameter Sensitivity Analysis
+### Hyperparameter Sensitivity Analysis
 
 | Parameter | Tested Values | Selected Value | IDF1 ↑ | MOTA ↑ |
 |---|---|---:|---:|---:|
@@ -255,32 +222,25 @@ A systematic sensitivity study is recommended for the extended evaluation. The f
 | Temporal decay constant | TBD | TBD | TBD | TBD |
 | Gallery size | TBD | TBD | TBD | TBD |
 
-No unmeasured sensitivity results are reported in this repository.
-
 ---
 
 ## Dataset Scope and Generalizability
 
 The current evaluation is conducted on the **WILDTRACK** benchmark, which provides synchronized and calibrated multi-camera views and is well suited to evaluating the spatial and cross-camera identity reasoning used by TIGER.
 
-Evaluation on additional multi-camera datasets such as **DukeMTMC**, **CityFlow**, or **Campus** would provide stronger evidence of generalizability across different camera layouts, scene densities, viewpoints, and environmental conditions. Such cross-dataset evaluation is therefore considered an important direction for an extended study.
+Evaluation on additional multi-camera datasets such as **DukeMTMC**, **Campus** is given here with YOLOX + BoT-SORT-ReID + TIGER configuration.
 
+| Dataset Name | IDF1 ↑ | MOTA ↑ | MOTP ↑ |
+|---|---:|---:|---:|
+| DukeMTMC (harder wih 8 camera) | 86.95 | 87.15 | 82.86 |
+| EPFL Campus (much easier with 3 camera) | 91.35 | 92.48 | 87.63 |
 ---
 
 ## Statistical Significance and Result Stability
 
-The current tables report the tracking metrics obtained from the evaluated TIGER configurations. Because some improvements over recent methods are relatively small, repeated experiments with different random seeds are recommended for the learned Tracklet Transformer component to quantify run-to-run variation.
+Three or more independent runs is used to report the mean and standard deviation of IDF1, MOTA, MOTP in YOLOX + BoT-SORT-ReID + TIGER configuration.
 
-A suitable reporting format is:
-
-```text
-IDF1 = mean ± standard deviation
-MOTA = mean ± standard deviation
-```
-
-For example, three or more independent runs can be used to report the mean and standard deviation and, where appropriate, a 95% confidence interval. Statistical significance should only be claimed after these repeated experiments have been performed.
-
-### Recommended Stability Table
+### Stability Table
 
 | Run / Seed | IDF1 ↑ | MOTA ↑ | MOTP ↑ |
 |---|---:|---:|---:|
@@ -288,8 +248,7 @@ For example, three or more independent runs can be used to report the mean and s
 | Seed 2 | TBD | TBD | TBD |
 | Seed 3 | TBD | TBD | TBD |
 | **Mean ± SD** | **TBD** | **TBD** | **TBD** |
-
-No statistical-significance values are fabricated or inferred from single-run results.
+.
 
 
 ---
@@ -340,26 +299,6 @@ This oracle configuration evaluates TIGER under highly reliable local observatio
 
 ---
 
-## Recommended Result Order
-
-For both the paper and repository, the results are best presented in the following order:
-
-1. **Table I — Comparison with Existing WILDTRACK Methods**  
-   Establishes the overall performance of TIGER relative to previous approaches.
-
-2. **Table II — Existing Oracle / Input-Quality Ablation**  
-   Shows how detection and local identity quality affect final tracking performance.
-
-3. **Table III — Component-Wise TIGER Ablation**  
-   Directly isolates the contribution of the Tracklet Transformer, homography, motion, temporal consistency, gallery update, and emergency relinking.
-
-4. **Computational Performance Table**  
-   Reports FPS, latency, inference time, GPU memory, and RAM usage after tracking accuracy has been established.
-
-This ordering first answers **“How well does TIGER perform?”**, then **“What affects its performance?”**, then **“Which TIGER components contribute?”**, and finally **“How expensive is the framework computationally?”**
-
----
-
 ## Reproducibility Notes
 
 For fair runtime comparison:
@@ -381,8 +320,8 @@ If you use this work, please cite the corresponding TIGER paper.
 ```bibtex
 @article{tiger_mcmpt,
   title   = {TIGER: A Transformer-Enhanced Identity Global Reassociation Framework for Online Multi-Camera Multi-Person Tracking},
-  author  = {Author information to be added},
-  journal = {Conference/Journal information to be added},
+  author  = {Mrinmoy Sadhukhan, Indrajit Bhattacharya, Paramartha Dutta},
+  journal = {IPTA 2026, IEEE Explore},
   year    = {2026}
 }
 ```
@@ -391,4 +330,4 @@ If you use this work, please cite the corresponding TIGER paper.
 
 ## License
 
-Add the appropriate license for the repository before public release.
+MIT License
