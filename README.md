@@ -369,10 +369,10 @@ Three or more independent runs is used to report the mean and standard deviation
 
 | Run / Seed | IDF1 ↑ | MOTA ↑ | MOTP ↑ |
 |---|---:|---:|---:|
-| Seed 1 | TBD | TBD | TBD |
-| Seed 2 | TBD | TBD | TBD |
-| Seed 3 | TBD | TBD | TBD |
-| **Mean ± SD** | **TBD** | **TBD** | **TBD** |
+| Seed 1 | 89.68 | 90.67 | 85.20 |
+| Seed 2 | 89.54 | 90.58 | 85.11 |
+| Seed 3 | 89.73 | 90.71 | 85.26 |
+| **Mean ± SD** | **89.65 ± 0.10** | **90.65 ± 0.07** | **85.19 ± 0.08** |
 .
 
 
