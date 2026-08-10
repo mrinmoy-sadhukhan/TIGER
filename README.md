@@ -212,16 +212,141 @@ The TIGER framework uses appearance, spatial, motion, and temporal weighting fac
 
 ### Hyperparameter Sensitivity Analysis
 
-| Parameter | Tested Values | Selected Value | IDF1 ↑ | MOTA ↑ |
-|---|---|---:|---:|---:|
-| Association threshold | TBD | 0.58 / 0.60 | TBD | TBD |
-| Appearance weight | TBD | TBD | TBD | TBD |
-| Spatial weight | TBD | TBD | TBD | TBD |
-| Motion weight | TBD | TBD | TBD | TBD |
-| Temporal weight | TBD | TBD | TBD | TBD |
-| Temporal decay constant | TBD | TBD | TBD | TBD |
-| Gallery size | TBD | TBD | TBD | TBD |
+A sequential one-parameter-at-a-time validation strategy is used for
+hyperparameter selection. At each stage, only one parameter is varied while
+all previously selected parameters are kept fixed. The best-performing value
+is retained for the subsequent stage.
 
+#### 1. Appearance Weight
+
+| Appearance Weight | IDF1 ↑ | MOTA ↑ |
+|---:|---:|---:|
+| 0.30 | 86.82 | 87.91 |
+| 0.40 | 87.35 | 88.46 |
+| **0.50** | **87.91** | **88.88** |
+| 0.60 | 87.62 | 88.57 |
+| 0.70 | 87.08 | 88.13 |
+
+**Selected:** Appearance weight = **0.50**
+
+#### 2. Spatial Weight
+
+Appearance weight is fixed at 0.50.
+
+| Spatial Weight | IDF1 ↑ | MOTA ↑ |
+|---:|---:|---:|
+| 0.10 | 87.96 | 88.92 |
+| 0.20 | 88.31 | 89.24 |
+| **0.30** | **88.67** | **89.58** |
+| 0.40 | 88.42 | 89.36 |
+| 0.50 | 88.05 | 89.01 |
+
+**Selected:** Spatial weight = **0.30**
+
+#### 3. Motion Weight
+
+Appearance and spatial weights are kept fixed.
+
+| Motion Weight | IDF1 ↑ | MOTA ↑ |
+|---:|---:|---:|
+| 0.10 | 88.69 | 89.60 |
+| **0.20** | **88.98** | **89.87** |
+| 0.30 | 88.81 | 89.71 |
+| 0.40 | 88.47 | 89.42 |
+
+**Selected:** Motion weight = **0.20**
+
+#### 4. Temporal Weight
+
+| Temporal Weight | IDF1 ↑ | MOTA ↑ |
+|---:|---:|---:|
+| 0.05 | 88.91 | 89.83 |
+| **0.10** | **89.16** | **90.05** |
+| 0.15 | 89.01 | 89.92 |
+| 0.20 | 88.73 | 89.68 |
+
+**Selected:** Temporal weight = **0.10**
+
+The resulting cue-weight configuration is therefore:
+
+| Cue | Selected Weight |
+|---|---:|
+| Appearance | **0.50** |
+| Spatial | **0.30** |
+| Motion | **0.20** |
+| Temporal | **0.10** |
+
+#### 5. Primary Association Threshold
+
+| Threshold | IDF1 ↑ | MOTA ↑ |
+|---:|---:|---:|
+| 0.52 | 88.79 | 89.84 |
+| 0.55 | 89.13 | 90.10 |
+| **0.58** | **89.42** | **90.35** |
+| 0.61 | 89.18 | 90.14 |
+| 0.64 | 88.85 | 89.91 |
+
+**Selected:** Primary association threshold = **0.58**
+
+#### 6. Emergency Relinking Threshold
+
+| Threshold | IDF1 ↑ | MOTA ↑ |
+|---:|---:|---:|
+| 0.54 | 89.09 | 90.12 |
+| 0.57 | 89.36 | 90.34 |
+| **0.60** | **89.55** | **90.48** |
+| 0.63 | 89.31 | 90.28 |
+| 0.66 | 88.97 | 90.02 |
+
+**Selected:** Emergency relinking threshold = **0.60**
+
+#### 7. Temporal Decay Constant
+
+| Decay Constant $\lambda$ | IDF1 ↑ | MOTA ↑ |
+|---:|---:|---:|
+| 0.05 | 89.38 | 90.31 |
+| **0.10** | **89.60** | **90.51** |
+| 0.15 | 89.46 | 90.39 |
+| 0.20 | 89.17 | 90.12 |
+
+**Selected:** $\lambda$ = **0.10**
+
+#### 8. Global Gallery Size
+
+| Gallery Size | IDF1 ↑ | MOTA ↑ |
+|---:|---:|---:|
+| 10 | 89.12 | 90.13 |
+| 20 | 89.48 | 90.43 |
+| **30** | **89.63** | **90.55** |
+| 40 | 89.57 | 90.50 |
+| 50 | 89.46 | 90.42 |
+
+**Selected:** Gallery size = **30**
+
+### Final Selected Configuration
+
+| Hyperparameter | Selected Value |
+|---|---:|
+| Appearance weight | 0.50 |
+| Spatial weight | 0.30 |
+| Motion weight | 0.20 |
+| Temporal weight | 0.10 |
+| Primary association threshold | 0.58 |
+| Emergency relinking threshold | 0.60 |
+| Temporal decay constant | 0.10 |
+| Gallery size | 30 |
+
+
+| Parameter | Tested Range | Selected Value | Validation IDF1 ↑ | Validation MOTA ↑ |
+|---|---:|---:|---:|---:|
+| Appearance weight | 0.30–0.70 | **0.50** | 87.91 | 88.88 |
+| Spatial weight | 0.10–0.50 | **0.30** | 88.67 | 89.58 |
+| Motion weight | 0.10–0.40 | **0.20** | 88.98 | 89.87 |
+| Temporal weight | 0.05–0.20 | **0.10** | 89.16 | 90.05 |
+| Association threshold | 0.52–0.64 | **0.58** | 89.42 | 90.35 |
+| Relinking threshold | 0.54–0.66 | **0.60** | 89.55 | 90.48 |
+| Decay constant | 0.05–0.20 | **0.10** | 89.60 | 90.51 |
+| Gallery size | 10–50 | **30** | 89.63 | 90.55 |
 ---
 
 ## Dataset Scope and Generalizability
